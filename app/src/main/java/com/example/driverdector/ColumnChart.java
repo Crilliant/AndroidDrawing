@@ -7,7 +7,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 public class ColumnChart extends View {
     /*定义绘图基础参数*/
@@ -16,8 +20,8 @@ public class ColumnChart extends View {
     //表格的长宽
     private int ChartHeight,ChartWidth;
     //内边距
-    private int PaddingLeft=40,PaddingRight=40;
-    private int PaddingTop=20,PaddingBottom=20;
+    private int PaddingLeft=80,PaddingRight=50;
+    private int PaddingTop=40,PaddingBottom=40;
 
     //xy轴、背景横线的画笔
     private Paint BorderLinePaint;
@@ -36,6 +40,16 @@ public class ColumnChart extends View {
     public ColumnChart(Context c){
         super(c);
     }
+    public ColumnChart(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+    protected void onMeasure(int widthMeasureSpec,int heightMeasureSpec){
+        super.onMeasure(widthMeasureSpec,heightMeasureSpec);
+        ViewHeight=getMeasuredHeight();
+        ViewWidth=getMeasuredWidth();
+        initChartWidthHeight();
+        initPaint();
+    }
     @Override
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
@@ -44,18 +58,12 @@ public class ColumnChart extends View {
         drawBorderLineText(canvas);
     }
 
-    protected void onMeasure(int widthMeasureSpec,int heightMeasureSpec){
-        super.onMeasure(widthMeasureSpec,heightMeasureSpec);
-        ViewHeight=heightMeasureSpec;
-        ViewWidth=widthMeasureSpec;
-        initChartWidthHeight();
-        initPaint();
-    }
+
 
     //初始化chart宽高
     private void initChartWidthHeight(){
-        ChartHeight=ViewHeight-PaddingLeft-PaddingRight;
-        ChartWidth=ViewWidth-PaddingTop-PaddingBottom;
+        ChartWidth=ViewWidth-PaddingLeft-PaddingRight;
+        ChartHeight=ViewHeight-PaddingTop-PaddingBottom;
     }
 
     //初始化画笔
@@ -76,29 +84,38 @@ public class ColumnChart extends View {
         initPaint(ColumnPaint);
     }
 
-    //画笔默认黑色空心
+    //画笔默认黑色实心
     private void initPaint(Paint paint){
         paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.BLACK);
     }
 
     //绘制x.y轴、背景横线，以及y轴文本
     private void drawBorderLineText(Canvas canvas){
         BorderLinePaint.setColor(getResources().getColor(R.color.darkGrey));
+
         //y axis
-        canvas.drawLine(PaddingLeft,PaddingTop,PaddingLeft,ViewHeight-PaddingBottom,BorderLinePaint);
+        canvas.drawLine(PaddingLeft,PaddingTop,
+                PaddingLeft,ViewHeight-PaddingBottom,BorderLinePaint);
         //x axis
-        canvas.drawLine(PaddingLeft,ViewWidth-PaddingRight,ViewWidth,ViewWidth-PaddingRight,BorderLinePaint);
+        canvas.drawLine(PaddingLeft,ViewHeight-PaddingBottom,
+                ViewWidth-PaddingRight,ViewHeight-PaddingBottom,BorderLinePaint);
+
 
         //边框分段横线
         float averHeight=ChartHeight/(valueText.length-1);
-        BorderLinePaint.setTextAlign(Paint.Align.RIGHT);
         BorderLinePaint.setColor(getResources().getColor(R.color.lightGrey));
+        //文字样式
+        TextPaint.setTextAlign(Paint.Align.RIGHT);//向原点右侧画
+        TextPaint.setTextSize(30f);
+
         for(int i=0;i< valueText.length;i++){
-            float nowHeight=averHeight*i;
-            canvas.drawLine(PaddingLeft,PaddingTop+nowHeight,ViewWidth-PaddingRight,PaddingTop+nowHeight,BorderLinePaint);
-            canvas.drawText(valueText[i]+"",PaddingLeft-5,nowHeight+PaddingTop,BorderLinePaint);
+            float nowHeight= ViewHeight - PaddingBottom - averHeight*i;
+            canvas.drawLine(PaddingLeft, nowHeight,
+                    ViewWidth-PaddingRight, nowHeight, BorderLinePaint);
+            canvas.drawText(valueText[valueText.length - 1-i]+"",
+                    PaddingLeft-10,nowHeight+5,TextPaint);
         }
     }
 
@@ -108,11 +125,23 @@ public class ColumnChart extends View {
         ColumnPaint.setColor(getResources().getColor(R.color.OrangeRed));
         ColumnPaint.setStrokeCap(Paint.Cap.ROUND);//stroke，笔画；这里设置圆角线帽
         ColumnPaint.setStrokeWidth(30);
+
+        //文字
+        TextPaint.setTextAlign(Paint.Align.CENTER);
+        TextPaint.setColor(getResources().getColor(R.color.OrangeRed));
+        TextPaint.setTextSize(20f);
+
         //获取column点坐标
         Point[] maxPoints=getPoints(maxValue);
         Point[] minPoints=getPoints(minValue);
         for(int i=0;i<maxValue.length;i++){
+            canvas.drawText(maxValue[i]+"",
+                    maxPoints[i].x,maxPoints[i].y-30,TextPaint);
+            canvas.drawText(minValue[i]+"",
+                    minPoints[i].x,minPoints[i].y+35,TextPaint);
+
             canvas.drawLine(maxPoints[i].x,maxPoints[i].y,minPoints[i].x,minPoints[i].y,ColumnPaint);
+
         }
     }
 
@@ -122,11 +151,11 @@ public class ColumnChart extends View {
         Point []points=new Point[n];
         float averWidth=ChartWidth/n;
         //TODO:这里写死chart数据范围是170-50
-        float weight=ChartHeight/120;
+        float weight=ChartHeight/120;//权重
 
         for(int i=0;i<n;i++){
             int x=(int)(PaddingLeft+(i+1)*averWidth);
-            int y=(int)(PaddingTop+ChartHeight-values[i]*weight);
+            int y=(int)(PaddingTop+ChartHeight-(values[i]-50)*weight);
             points[i]=new Point(x,y);
         }
         return points;

@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidProj/DriverDector/app/src/main/res/layout/activity_main.xml" value="0.12" />
         <entry key="..\:/AndroidProj/DriverDector/app/src/main/res/layout/column_chart.xml" value="0.14114583333333333" />
         <entry key="..\:/AndroidProj/DriverDector/app/src/main/res/layout/draw_chart.xml" value="0.17916666666666667" />
       </map>

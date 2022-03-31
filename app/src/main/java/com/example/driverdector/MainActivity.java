@@ -8,13 +8,14 @@ import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ColumnChart test1;
+    //int values[]={56,134,57,93};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Context context = getApplicationContext();
-        ColumnChart chart=new ColumnChart(context);
-        Canvas canvas=new Canvas();
-        chart.draw(canvas);
+        test1=findViewById(R.id.chart1);
+
+
     }
 }
