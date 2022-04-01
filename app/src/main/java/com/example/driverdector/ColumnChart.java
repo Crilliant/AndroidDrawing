@@ -27,14 +27,15 @@ public class ColumnChart extends View {
     private Paint BorderLinePaint;
     //数据柱的画笔
     private Paint ColumnPaint;
-    //文字画笔
-    private Paint TextPaint;
+    //文字画笔：data，坐标
+    private Paint TextPaint, CommentPaint;
 
     /**边框文本,正常血压在148-70,所以设置这里数据范围170-50*/
     private int[] valueText =new int[]{170,150,130,110,90,70,50};
     /**数据值*/
     private int[] maxValue=new int[]{100,110,120,110,103,104,140};
     private int[] minValue=new int[]{70,90,80,69,83,85,72};
+    private String[] days=new String[]{"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
 
 
     public ColumnChart(Context c){
@@ -53,9 +54,9 @@ public class ColumnChart extends View {
     @Override
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
+        drawBorderLineText(canvas);
         drawColumn(canvas);
-        drawBorderLineText(canvas);
-        drawBorderLineText(canvas);
+        //drawBorderLineText(canvas);
     }
 
 
@@ -72,6 +73,9 @@ public class ColumnChart extends View {
         if(TextPaint==null)
             TextPaint=new Paint();
         initPaint(TextPaint);
+        if(CommentPaint==null)
+            CommentPaint=new Paint();
+        initPaint(CommentPaint);
 
         //x/y轴画笔
         if(BorderLinePaint==null)
@@ -107,15 +111,17 @@ public class ColumnChart extends View {
         float averHeight=ChartHeight/(valueText.length-1);
         BorderLinePaint.setColor(getResources().getColor(R.color.lightGrey));
         //文字样式
-        TextPaint.setTextAlign(Paint.Align.RIGHT);//向原点右侧画
-        TextPaint.setTextSize(30f);
+        CommentPaint.setTextAlign(Paint.Align.RIGHT);//向原点左侧画
+        CommentPaint.setTextSize(25f);
+        CommentPaint.setColor(getResources().getColor(R.color.darkGrey));
 
         for(int i=0;i< valueText.length;i++){
             float nowHeight= ViewHeight - PaddingBottom - averHeight*i;
             canvas.drawLine(PaddingLeft, nowHeight,
                     ViewWidth-PaddingRight, nowHeight, BorderLinePaint);
             canvas.drawText(valueText[valueText.length - 1-i]+"",
-                    PaddingLeft-10,nowHeight+5,TextPaint);
+                    PaddingLeft-10,nowHeight+5,CommentPaint);
+
         }
     }
 
@@ -131,16 +137,23 @@ public class ColumnChart extends View {
         TextPaint.setColor(getResources().getColor(R.color.OrangeRed));
         TextPaint.setTextSize(20f);
 
+        //日期
+        CommentPaint.setTextAlign(Paint.Align.CENTER);
+
         //获取column点坐标
         Point[] maxPoints=getPoints(maxValue);
         Point[] minPoints=getPoints(minValue);
         for(int i=0;i<maxValue.length;i++){
-            canvas.drawText(maxValue[i]+"",
+            canvas.drawText(maxValue[i]+"",//max value
                     maxPoints[i].x,maxPoints[i].y-30,TextPaint);
-            canvas.drawText(minValue[i]+"",
-                    minPoints[i].x,minPoints[i].y+35,TextPaint);
+            canvas.drawText(minValue[i]+"",//min value text
+                    minPoints[i].x,minPoints[i].y+45,TextPaint);
+            canvas.drawText(days[i],
+                    maxPoints[i].x,ViewHeight-PaddingBottom+30,CommentPaint);
 
-            canvas.drawLine(maxPoints[i].x,maxPoints[i].y,minPoints[i].x,minPoints[i].y,ColumnPaint);
+            canvas.drawLine(maxPoints[i].x,maxPoints[i].y,
+                    minPoints[i].x,minPoints[i].y,ColumnPaint);
+
 
         }
     }
