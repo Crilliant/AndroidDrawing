@@ -28,6 +28,8 @@ public class BrokenLineChart extends View {
     private int radius=8;
     //折线的画笔
     private Paint LinePaint;
+    //半透明背景
+    private  Paint BackgroundPaint;
     //文字画笔：data，坐标
     private Paint TextPaint, CommentPaint;
 
@@ -84,6 +86,9 @@ public class BrokenLineChart extends View {
         if(LinePaint==null)
             LinePaint=new Paint();
         initPaint(LinePaint);
+        if(BackgroundPaint==null)
+            BackgroundPaint=new Paint();
+        initPaint(BackgroundPaint);
 
         //圆圈画笔
         if(CyclePaint==null)
@@ -156,10 +161,16 @@ public class BrokenLineChart extends View {
     }
     //画曲线、日期、半透明的背景
     public void drawLineDate(Canvas canvas){
+        //折线
         LinePaint.setColor(getResources().getColor(R.color.OrangeRed));
         LinePaint.setStrokeWidth(4);
         LinePaint.setStyle(Paint.Style.STROKE);
-        CommentPaint.setTextAlign(Paint.Align.CENTER);//日期
+        //背景
+        BackgroundPaint.setColor(getResources().getColor(R.color.OrangeRed));
+        BackgroundPaint.setAlpha(50);//不透明度
+        //日期
+        CommentPaint.setTextAlign(Paint.Align.CENTER);
+
         Point[] points=getPoints(data);
         Path p=new Path();
         for(int i=0;i<data.length;i++){
@@ -173,5 +184,9 @@ public class BrokenLineChart extends View {
                     points[i].x,ViewHeight-PaddingBottom+30,CommentPaint);
         }
         canvas.drawPath(p,LinePaint);
+
+        p.lineTo(ChartWidth+PaddingLeft,ViewHeight-PaddingBottom);
+        p.lineTo(points[0].x,ViewHeight-PaddingBottom);
+        canvas.drawPath(p,BackgroundPaint);
     }
 }
