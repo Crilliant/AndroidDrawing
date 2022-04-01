@@ -1,19 +1,17 @@
-//Created by Cao Yx on 2022.3.8
-//Column chart for detect the blood pressure
 package com.example.driverdector;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 
-public class ColumnChart extends View {
+public class BrokenLineChart extends View {
     /*定义绘图基础参数*/
     //View布局的长宽
     private int ViewHeight,ViewWidth;
@@ -25,23 +23,24 @@ public class ColumnChart extends View {
 
     //xy轴、背景横线的画笔
     private Paint BorderLinePaint;
-    //数据柱的画笔
-    private Paint ColumnPaint;
+    //圆点
+    private Paint CyclePaint;
+    private int radius=8;
+    //折线的画笔
+    private Paint LinePaint;
     //文字画笔：data，坐标
     private Paint TextPaint, CommentPaint;
 
     /**边框文本,正常血压在148-70,所以设置这里数据范围170-50*/
     private int[] valueText =new int[]{170,150,130,110,90,70,50};
     /**数据值*/
-    private int[] maxValue=new int[]{100,110,120,110,103,104,140};
-    private int[] minValue=new int[]{70,90,80,69,83,85,72};
+    private int[] data=new int[]{100,110,120,110,163,104,140};
     private String[] days=new String[]{"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
 
-
-    public ColumnChart(Context c){
+    public BrokenLineChart(Context c){
         super(c);
     }
-    public ColumnChart(Context context, @Nullable AttributeSet attrs) {
+    public BrokenLineChart(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -56,11 +55,9 @@ public class ColumnChart extends View {
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
         drawBorderLineText(canvas);
-        drawColumn(canvas);
+        drawCycle(canvas);
+        drawLineDate(canvas);
     }
-
-
-
     //初始化chart宽高
     private void initChartWidthHeight(){
         ChartWidth=ViewWidth-PaddingLeft-PaddingRight;
@@ -73,6 +70,7 @@ public class ColumnChart extends View {
         if(TextPaint==null)
             TextPaint=new Paint();
         initPaint(TextPaint);
+
         if(CommentPaint==null)
             CommentPaint=new Paint();
         initPaint(CommentPaint);
@@ -82,10 +80,15 @@ public class ColumnChart extends View {
             BorderLinePaint=new Paint();
         initPaint(BorderLinePaint);
 
-        //column画笔
-        if(ColumnPaint==null)
-            ColumnPaint=new Paint();
-        initPaint(ColumnPaint);
+        //折线画笔
+        if(LinePaint==null)
+            LinePaint=new Paint();
+        initPaint(LinePaint);
+
+        //圆圈画笔
+        if(CyclePaint==null)
+            CyclePaint=new Paint();
+        initPaint(CyclePaint);
     }
 
     //画笔默认黑色实心
@@ -125,42 +128,9 @@ public class ColumnChart extends View {
         }
     }
 
-    //绘制column and date
-    private void drawColumn(Canvas canvas){
-        //设置橘红色圆角线格式
-        ColumnPaint.setColor(getResources().getColor(R.color.OrangeRed));
-        ColumnPaint.setStrokeCap(Paint.Cap.ROUND);//stroke，笔画；这里设置圆角线帽
-        ColumnPaint.setStrokeWidth(30);
-
-        //文字
-        TextPaint.setTextAlign(Paint.Align.CENTER);
-        TextPaint.setColor(getResources().getColor(R.color.OrangeRed));
-        TextPaint.setTextSize(20f);
-
-        //日期
-        CommentPaint.setTextAlign(Paint.Align.CENTER);
-
-        //获取column点坐标
-        Point[] maxPoints=getPoints(maxValue);
-        Point[] minPoints=getPoints(minValue);
-        for(int i=0;i<maxValue.length;i++){
-            canvas.drawText(maxValue[i]+"",//max value
-                    maxPoints[i].x,maxPoints[i].y-30,TextPaint);
-            canvas.drawText(minValue[i]+"",//min value text
-                    minPoints[i].x,minPoints[i].y+45,TextPaint);
-            canvas.drawText(days[i],
-                    maxPoints[i].x,ViewHeight-PaddingBottom+30,CommentPaint);
-
-            canvas.drawLine(maxPoints[i].x,maxPoints[i].y,
-                    minPoints[i].x,minPoints[i].y,ColumnPaint);
-
-
-        }
-    }
-
     //获得一组数据值在表格的中的位置
     public Point[] getPoints(int[]values){
-        int n= maxValue.length;
+        int n= data.length;
         Point []points=new Point[n];
         float averWidth=ChartWidth/n;
         //TODO:这里写死chart数据范围是170-50
@@ -174,4 +144,34 @@ public class ColumnChart extends View {
         return points;
     }
 
+    public void drawCycle(Canvas canvas){
+        //设置橘红色实心圆点
+        CyclePaint.setColor(getResources().getColor(R.color.OrangeRed));
+
+        Point[] points=getPoints(data);
+
+        for(int i=0;i<data.length;i++){
+            canvas.drawCircle(points[i].x,points[i].y,radius,CyclePaint);
+        }
+    }
+    //画曲线、日期、半透明的背景
+    public void drawLineDate(Canvas canvas){
+        LinePaint.setColor(getResources().getColor(R.color.OrangeRed));
+        LinePaint.setStrokeWidth(4);
+        LinePaint.setStyle(Paint.Style.STROKE);
+        CommentPaint.setTextAlign(Paint.Align.CENTER);//日期
+        Point[] points=getPoints(data);
+        Path p=new Path();
+        for(int i=0;i<data.length;i++){
+            if(i == 0){
+                p.moveTo(points[i].x,points[i].y);
+            }
+            else{
+                p.lineTo(points[i].x,points[i].y);
+            }
+            canvas.drawText(days[i],
+                    points[i].x,ViewHeight-PaddingBottom+30,CommentPaint);
+        }
+        canvas.drawPath(p,LinePaint);
+    }
 }
