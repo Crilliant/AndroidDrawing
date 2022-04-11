@@ -1,3 +1,5 @@
+//Created by Cao Yx on 2022.3.31
+//broken line chart for the detection of the heart rate
 package com.example.driverdector;
 
 import android.content.Context;
@@ -161,14 +163,14 @@ public class BrokenLineChart extends View {
     }
     //画曲线、日期、半透明的背景
     public void drawLineDate(Canvas canvas){
-        //折线
+        //折线画笔
         LinePaint.setColor(getResources().getColor(R.color.OrangeRed));
         LinePaint.setStrokeWidth(4);
         LinePaint.setStyle(Paint.Style.STROKE);
-        //背景
+        //背景画笔
         BackgroundPaint.setColor(getResources().getColor(R.color.OrangeRed));
         BackgroundPaint.setAlpha(50);//不透明度
-        //日期
+        //日期画笔
         CommentPaint.setTextAlign(Paint.Align.CENTER);
 
         Point[] points=getPoints(data);

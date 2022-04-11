@@ -1,5 +1,5 @@
 //Created by Cao Yx on 2022.3.8
-//Column chart for detect the blood pressure
+//Column chart for the detection of the blood pressure
 package com.example.driverdector;
 
 import android.content.Context;
@@ -12,6 +12,10 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class ColumnChart extends View {
     /*定义绘图基础参数*/
@@ -69,7 +73,7 @@ public class ColumnChart extends View {
 
     //初始化画笔
     private void initPaint(){
-        //文字画笔
+        // 文字画笔
         if(TextPaint==null)
             TextPaint=new Paint();
         initPaint(TextPaint);
@@ -77,12 +81,12 @@ public class ColumnChart extends View {
             CommentPaint=new Paint();
         initPaint(CommentPaint);
 
-        //x/y轴画笔
+        // x/y轴画笔
         if(BorderLinePaint==null)
             BorderLinePaint=new Paint();
         initPaint(BorderLinePaint);
 
-        //column画笔
+        // column画笔
         if(ColumnPaint==null)
             ColumnPaint=new Paint();
         initPaint(ColumnPaint);
@@ -163,6 +167,8 @@ public class ColumnChart extends View {
         int n= maxValue.length;
         Point []points=new Point[n];
         float averWidth=ChartWidth/n;
+
+
         //TODO:这里写死chart数据范围是170-50
         float weight=ChartHeight/120;//权重
 
